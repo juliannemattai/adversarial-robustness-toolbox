@@ -5,6 +5,7 @@ the model, it would also be possible to provide a pretrained model to the ART cl
 The parameters are chosen for reduced computational requirements of the script and not optimised for accuracy.
 """
 import numpy as np
+import time
 
 from art.attacks.evasion import FastGradientMethod
 from art.estimators.classification import TensorFlowV2Classifier
@@ -87,12 +88,21 @@ predictions = classifier.predict(x_test)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print("Accuracy on benign test examples: {}%".format(accuracy * 100))
 
+start_time=time.time()
 # Step 6: Generate adversarial test examples
 attack = FastGradientMethod(estimator=classifier, eps=0.2)
 x_test_adv = attack.generate(x=x_test)
+
+mid_time = time.time()
+
 
 # Step 7: Evaluate the ART classifier on adversarial test examples
 
 predictions = classifier.predict(x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print("Accuracy on adversarial test examples: {}%".format(accuracy * 100))
+
+
+end_time = time.time()
+print("Time took to generate attack = {} seconds".format(str(mid_time-start_time)))
+print("Time took to test adversarial examples = {} seconds".format(str(end_time-mid_time)))
